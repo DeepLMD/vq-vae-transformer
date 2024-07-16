@@ -230,8 +230,8 @@ class TSTEncoderLayer(nn.Module):
             #self.vq = VectorQuantize(dim = d_model, codebook_size = codebook_size, decay = 0.8, commitment_weight = 1., orthogonal_reg_weight=0.8, heads = 4, 
             #separate_codebook_per_head = True, ema_update = False, learnable_codebook = True)
             self.vq = ResidualVQ(
-            dim = 256,
-            num_quantizers = 8,
+            dim = d_model,
+            num_quantizers = 1,
             codebook_size = 1024,
             stochastic_sample_codes = True,
             sample_codebook_temp = 0.1,         # temperature for stochastically sampling codes, 0 would be equivalent to non-stochastic
