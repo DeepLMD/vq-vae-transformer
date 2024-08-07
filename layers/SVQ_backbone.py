@@ -10,8 +10,6 @@ from layers.RevIN import RevIN, DishTS
 from layers.SVQ_block import VectorQuantize
 from layers.sparselinear import SparseLinear
 
-from vector_quantize_pytorch import ResidualVQ
-
 # Cell
 class SVQ_backbone(nn.Module):
     def __init__(self, codebook_size, length, svq, wFFN, c_in:int, context_window:int, target_window:int, patch_len:int, stride:int, max_seq_len:Optional[int]=1024, 
@@ -227,16 +225,8 @@ class TSTEncoderLayer(nn.Module):
         self.store_attn = store_attn
 
         if self.svq:
-            #self.vq = VectorQuantize(dim = d_model, codebook_size = codebook_size, decay = 0.8, commitment_weight = 1., orthogonal_reg_weight=0.8, heads = 4, 
-            #separate_codebook_per_head = True, ema_update = False, learnable_codebook = True)
-            self.vq = ResidualVQ(
-            dim = 256,
-            num_quantizers = 8,
-            codebook_size = 1024,
-            stochastic_sample_codes = True,
-            sample_codebook_temp = 0.1,         # temperature for stochastically sampling codes, 0 would be equivalent to non-stochastic
-            shared_codebook = True              # whether to share the codebooks for all quantizers or not
-        )
+            self.vq = VectorQuantize(dim = d_model, codebook_size = codebook_size, decay = 0.8, commitment_weight = 1., orthogonal_reg_weight=0.8, heads = 4, 
+            separate_codebook_per_head = True, ema_update = False, learnable_codebook = True)
 
 
 
@@ -394,4 +384,3 @@ class _ScaledDotProductAttention(nn.Module):
 
         if self.res_attention: return output, attn_weights, attn_scores
         else: return output, attn_weights
-
