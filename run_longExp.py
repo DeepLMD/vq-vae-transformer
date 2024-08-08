@@ -123,9 +123,9 @@ if __name__ == '__main__':
     
     print('Args in experiment:')
     print(args)
-    print("---------------"+ "  \n")
+    print("---------------")
     print(f"###### git hash: {git_hash} ###### ")
-    print("---------------"+ "  \n")
+    print("---------------")
     Exp = Exp_Main
 
     if args.is_training:
