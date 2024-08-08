@@ -4,6 +4,7 @@ import torch
 from exp.exp_main import Exp_Main
 import random
 import numpy as np
+from utils.git_revision_hash_func import git_hash
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
@@ -122,6 +123,9 @@ if __name__ == '__main__':
     
     print('Args in experiment:')
     print(args)
+    print("---------------")
+    print(f"###### git hash: {git_hash} ###### ")
+    print("---------------")
     Exp = Exp_Main
 
     if args.is_training:

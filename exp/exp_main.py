@@ -3,6 +3,7 @@ from exp.exp_basic import Exp_Basic
 from models import Informer, Autoformer, Transformer, DLinear, Linear, NLinear, FEDformer, SVQ
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
 from utils.metrics import metric
+from utils.git_revision_hash_func import git_hash
 
 import numpy as np
 import torch
@@ -255,8 +256,13 @@ class Exp_Main(Exp_Basic):
         mae, mse, rmse, mape, mspe, rse, corr = metric(preds, trues)
         print('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
         f = open("result.txt", 'a')
+        f.write(" ---------------------------- " + "  \n")
+        f.write(f"###### git hash: {git_hash} ###### " + "  \n")
         f.write(setting + "  \n")
-        f.write('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
+        #f.write('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
+        f.write('mae:{}, mse:{}, rmse:{}, mape:{}, mspe:{}, rse:{}, corr:{}'.format(mae, mse, rmse, mape, mspe, rse, corr))
+        f.write('\n')
+        f.write(" ---------------------------- ")
         f.write('\n')
         f.write('\n')
         f.close()
