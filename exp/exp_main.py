@@ -4,6 +4,7 @@ from models import Informer, Autoformer, Transformer, DLinear, Linear, NLinear, 
 from utils.tools import EarlyStopping, adjust_learning_rate, visual, test_params_flop
 from utils.metrics import metric
 from utils.git_revision_hash_func import git_hash
+from utils.generate_uuid import uuid_value
 
 import numpy as np
 import torch
@@ -257,6 +258,7 @@ class Exp_Main(Exp_Basic):
         print('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
         f = open("result.txt", 'a')
         f.write(" ---------------------------- " + "  \n")
+        f.write(f"UUID: {uuid_value}" + "  \n")
         f.write(f"###### git hash: {git_hash} ###### " + "  \n")
         f.write(setting + "  \n")
         #f.write('mse:{}, mae:{}, rse:{}'.format(mse, mae, rse))
