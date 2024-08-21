@@ -10,6 +10,8 @@ from layers.RevIN import RevIN, DishTS
 from layers.SVQ_block import VectorQuantize
 from layers.sparselinear import SparseLinear
 
+from vector_quantize_pytorch import ResidualFSQ
+
 # Cell
 class SVQ_backbone(nn.Module):
     def __init__(self, codebook_size, length, svq, wFFN, c_in:int, context_window:int, target_window:int, patch_len:int, stride:int, max_seq_len:Optional[int]=1024, 
@@ -225,9 +227,11 @@ class TSTEncoderLayer(nn.Module):
         self.store_attn = store_attn
 
         if self.svq:
-            self.vq = VectorQuantize(dim = d_model, codebook_size = codebook_size, decay = 0.8, commitment_weight = 1., orthogonal_reg_weight=0.8, heads = 4, 
-            separate_codebook_per_head = True, ema_update = False, learnable_codebook = True)
-
+            self.vq = ResidualFSQ(
+                dim = d_model,
+                levels = [8, 5, 5, 3],
+                num_quantizers = 8
+            )
 
 
     def forward(self, src:Tensor, prev:Optional[Tensor]=None, key_padding_mask:Optional[Tensor]=None, attn_mask:Optional[Tensor]=None) -> Tensor:
