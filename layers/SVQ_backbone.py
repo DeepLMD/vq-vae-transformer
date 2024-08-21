@@ -241,7 +241,7 @@ class TSTEncoderLayer(nn.Module):
             src = self.norm_attn(src)
             
         if self.svq:
-            quantized, indices, commit_loss1 = self.vq(src)
+            quantized, indices = self.vq(src)
             src_vq, attn, scores = self.self_attn(quantized, quantized, quantized, prev, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
             src = self.dropout_attn(src_vq) + src
             scores = 0
