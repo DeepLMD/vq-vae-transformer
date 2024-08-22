@@ -271,7 +271,7 @@ class Exp_Main(Exp_Basic):
 
         np.save(folder_path + 'pred.npy', preds)
 
-        return
+        return mse
 
     def predict(self, setting, load=False):
         pred_data, pred_loader = self._get_data(flag='pred')
