@@ -107,7 +107,7 @@ def objective(trial):
     parser.add_argument('--devices', type=str, default='0,1,2,3', help='device ids of multile gpus')
     parser.add_argument('--test_flop', action='store_true', default=False, help='See utils/tools for usage')
 
-    args = parser.parse_args([])
+    args = parser.parse_args()
 
     # random seed
     fix_seed = args.random_seed
@@ -165,7 +165,7 @@ def objective(trial):
                 exp.predict(setting, True)
 
             torch.cuda.empty_cache()
-            
+
             return val_loss
     else:
         ii = 0
