@@ -86,7 +86,15 @@ class Exp_Main(Exp_Basic):
                 loss = criterion(pred, true)
 
                 total_loss.append(loss)
+
+                del batch_x, batch_y, batch_x_mark, batch_y_mark, outputs, dec_inp, pred, true
+                torch.cuda.empty_cache()
+
         total_loss = np.average(total_loss)
+
+        del vali_data, vali_loader
+        torch.cuda.empty_cache()
+
         self.model.train()
         return total_loss
 
@@ -165,6 +173,9 @@ class Exp_Main(Exp_Basic):
                 if self.args.lradj == 'TST':
                     adjust_learning_rate(model_optim, scheduler, epoch + 1, self.args)
                     scheduler.step()
+                
+                del batch_x, batch_y, batch_x_mark, batch_y_mark, outputs, dec_inp, loss
+                torch.cuda.empty_cache()
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
 
@@ -185,6 +196,9 @@ class Exp_Main(Exp_Basic):
                 adjust_learning_rate(model_optim, scheduler, epoch + 1, self.args)
             else:
                 print('Updating learning rate to {}'.format(scheduler.get_last_lr()[0]))
+
+            del train_loss, vali_loss, test_loss
+            torch.cuda.empty_cache()
 
         best_model_path = path + '/' + 'checkpoint.pth'
         self.model.load_state_dict(torch.load(best_model_path))
@@ -237,6 +251,8 @@ class Exp_Main(Exp_Basic):
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
                     pd = np.concatenate((input[0, :, -1], pred[0, :, -1]), axis=0)
                     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
+            del batch_x, batch_y, batch_x_mark, batch_y_mark, outputs, pred, true
+            torch.cuda.empty_cache()
 
         if self.args.test_flop:
             test_params_flop((batch_x.shape[1],batch_x.shape[2]))
@@ -304,6 +320,9 @@ class Exp_Main(Exp_Basic):
                 pred = outputs.detach().cpu().numpy()  # .squeeze()
                 preds.append(pred)
 
+                del batch_x, batch_y, batch_x_mark, batch_y_mark, outputs, dec_inp
+                torch.cuda.empty_cache()
+
         preds = np.array(preds)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
 
@@ -313,5 +332,8 @@ class Exp_Main(Exp_Basic):
             os.makedirs(folder_path)
 
         np.save(folder_path + 'real_prediction.npy', preds)
+
+        del pred_loader, pred_data
+        torch.cuda.empty_cache()
 
         return
