@@ -8,6 +8,7 @@ from utils.git_revision_hash_func import git_hash
 from utils.generate_uuid import uuid_value
 
 import optuna
+from optuna.integration import EarlyStoppingCallback
 
 def objective(trial):
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
@@ -42,7 +43,7 @@ def objective(trial):
     # Sparse-VQ
     parser.add_argument('--wFFN', type=int, default=1, help='use FFN layer')
     parser.add_argument('--svq', type=int, default=1, help='use sparse vector quantized')
-    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [750, 1000]), help='codebook_size in sparse vector quantized')
+    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [250, 500, 750, 1000]), help='codebook_size in sparse vector quantized')
     
     parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
     parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')
@@ -84,8 +85,8 @@ def objective(trial):
     parser.add_argument('--train_epochs', type=int, default=100, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=128, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=5, help='early stopping patience')
-    #parser.add_argument('--learning_rate', type=float, default=trial.suggest_loguniform('learning_rate', 1e-5, 1e-3), help='optimizer learning rate')
-    parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
+    parser.add_argument('--learning_rate', type=float, default=trial.suggest_categorical('learning_rate', [1e-1, 1e-2, 1e-3]), help='optimizer learning rate')
+    #parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
     parser.add_argument('--des', type=str, default='test', help='exp description')
     parser.add_argument('--loss', type=str, default='mae', help='loss function')
     parser.add_argument('--lradj', type=str, default='TST', help='adjust learning rate')
@@ -193,6 +194,8 @@ def objective(trial):
         torch.cuda.empty_cache()
 
 if __name__ == '__main__':
+    early_stopping = EarlyStoppingCallback(patience=2, verbose=True)  # Early stopping for the Optuna optimization process if no improvement is seen after 2 trials
+
     study = optuna.create_study(direction='minimize')
     study.optimize(objective, n_trials=3)  # number of trials
 
