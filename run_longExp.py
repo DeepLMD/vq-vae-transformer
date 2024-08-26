@@ -8,7 +8,6 @@ from utils.git_revision_hash_func import git_hash
 from utils.generate_uuid import uuid_value
 
 import optuna
-from optuna.integration import EarlyStoppingCallback
 
 def objective(trial):
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
@@ -194,7 +193,6 @@ def objective(trial):
         torch.cuda.empty_cache()
 
 if __name__ == '__main__':
-    early_stopping = EarlyStoppingCallback(patience=2, verbose=True)  # Early stopping for the Optuna optimization process if no improvement is seen after 2 trials
 
     study = optuna.create_study(direction='minimize')
     study.optimize(objective, n_trials=3)  # number of trials
