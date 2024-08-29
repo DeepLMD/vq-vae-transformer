@@ -25,6 +25,9 @@ warnings.filterwarnings('ignore')
 class Exp_Main(Exp_Basic):
     def __init__(self, args):
         super(Exp_Main, self).__init__(args)
+        self.train_data_sample = None
+        self.val_data_sample = None
+        self.test_data_sample = None
 
     def _build_model(self):
         model_dict = {
@@ -46,6 +49,14 @@ class Exp_Main(Exp_Basic):
 
     def _get_data(self, flag):
         data_set, data_loader = data_provider(self.args, flag)
+
+        if flag == 'train':
+            self.train_data_sample = next(iter(data_loader))
+        elif flag == 'val':
+            self.val_data_sample = next(iter(data_loader))
+        elif flag == 'test':
+            self.test_data_sample = next(iter(data_loader))
+
         return data_set, data_loader
 
     def _select_optimizer(self):
@@ -58,8 +69,26 @@ class Exp_Main(Exp_Basic):
         else:
             criterion = nn.L1Loss()
         return criterion
+    
+    def check_datasets(self):
+        train_val_same = np.array_equal(self.train_data_sample[0].cpu().numpy(), self.val_data_sample[0].cpu().numpy())
+        train_test_same = np.array_equal(self.train_data_sample[0].cpu().numpy(), self.test_data_sample[0].cpu().numpy())
+        val_test_same = np.array_equal(self.val_data_sample[0].cpu().numpy(), self.test_data_sample[0].cpu().numpy())
+
+        assert not train_val_same, "Train and Val datasets should not be the same!"
+        assert not train_test_same, "Train and Test datasets should not be the same!"
+        assert not val_test_same, "Val and Test datasets should not be the same!"
+
+        print("All dataset checks passed.")
 
     def vali(self, vali_data, vali_loader, criterion):
+
+        val_train_same = np.array_equal(self.val_data_sample[0].cpu().numpy(), self.train_data_sample[0].cpu().numpy())
+        val_test_same = np.array_equal(self.val_data_sample[0].cpu().numpy(), self.test_data_sample[0].cpu().numpy())
+
+        print(f"Val and Train datasets are the same: {val_train_same}")
+        print(f"Val and Test datasets are the same: {val_test_same}")
+
         total_loss = []
         self.model.eval()
 
@@ -102,6 +131,8 @@ class Exp_Main(Exp_Basic):
         train_data, train_loader = self._get_data(flag='train')
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
+
+        self.check_datasets()
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
@@ -207,6 +238,12 @@ class Exp_Main(Exp_Basic):
 
     def test(self, setting, test=0):
         test_data, test_loader = self._get_data(flag='test')
+
+        test_train_same = np.array_equal(self.test_data_sample[0].cpu().numpy(), self.train_data_sample[0].cpu().numpy())
+        test_val_same = np.array_equal(self.test_data_sample[0].cpu().numpy(), self.val_data_sample[0].cpu().numpy())
+
+        print(f"Test and Train datasets are the same: {test_train_same}")
+        print(f"Test and Val datasets are the same: {test_val_same}")
         
         if test:
             print('loading model')
