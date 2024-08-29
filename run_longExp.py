@@ -64,7 +64,9 @@ def objective(trial):
     parser.add_argument('--c_out', type=int, default=7, help='output size')
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
     parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
-    parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
+    #parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
+    parser.add_argument('--e_layers', type=int, default=trial.suggest_categorical('e_layers', [3, 2, 1]), help='num of encoder layers')
+    
     parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
     parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
     parser.add_argument('--moving_avg', type=int, default=25, help='window size of moving average')
@@ -72,7 +74,8 @@ def objective(trial):
     parser.add_argument('--distil', action='store_false',
                         help='whether to use distilling in encoder, using this argument means not using distilling',
                         default=True)
-    parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
+    #parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
+    parser.add_argument('--dropout', type=float, default=trial.suggest_categorical('dropout', [0.2, 0.15, 0.1]), help='dropout')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
@@ -85,10 +88,10 @@ def objective(trial):
     parser.add_argument('--train_epochs', type=int, default=100, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=128, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=5, help='early stopping patience')
-    parser.add_argument('--learning_rate', type=float, default=trial.suggest_categorical('learning_rate', [1e-1, 1e-2, 1e-3]), help='optimizer learning rate')
-    #parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
+    #parser.add_argument('--learning_rate', type=float, default=trial.suggest_categorical('learning_rate', [1e-1, 1e-2, 1e-3]), help='optimizer learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
     parser.add_argument('--des', type=str, default='test', help='exp description')
-    parser.add_argument('--loss', type=str, default='mae', help='loss function')
+    parser.add_argument('--loss', type=str, default='mse', help='loss function')
     parser.add_argument('--lradj', type=str, default='TST', help='adjust learning rate')
     parser.add_argument('--pct_start', type=float, default=0.3, help='pct_start')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
