@@ -8,6 +8,7 @@ from utils.git_revision_hash_func import git_hash
 from utils.generate_uuid import uuid_value
 
 import optuna
+from optuna.samplers import RandomSampler
 
 def objective(trial):
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
@@ -193,9 +194,9 @@ def objective(trial):
         torch.cuda.empty_cache()
 
 if __name__ == '__main__':
-
-    study = optuna.create_study(direction='minimize')
-    study.optimize(objective, n_trials=13)  # number of trials
+    sampler = RandomSampler(seed=2024)
+    study = optuna.create_study(direction='minimize', sampler=sampler) # random sampler
+    study.optimize(objective, n_trials=25)  # number of trials
 
     print("Best trial:")
     trial = study.best_trial
