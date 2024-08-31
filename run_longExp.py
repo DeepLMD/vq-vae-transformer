@@ -13,6 +13,9 @@ from optuna.samplers import RandomSampler
 def objective(trial):
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
 
+    #the num_quantizers parameter to be optimized
+    parser.add_argument('--num_quantizers', type=int, default=trial.suggest_categorical('num_quantizers', [2, 4, 6, 8]), help='Number of quantizers for ResidualVQ')
+
     # random seed
     parser.add_argument('--random_seed', type=int, default=2021, help='random seed')
 
@@ -43,7 +46,7 @@ def objective(trial):
     # Sparse-VQ
     parser.add_argument('--wFFN', type=int, default=1, help='use FFN layer')
     parser.add_argument('--svq', type=int, default=1, help='use sparse vector quantized')
-    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [250, 500, 750, 1000]), help='codebook_size in sparse vector quantized')
+    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [250, 500, 750, 1024]), help='codebook_size in sparse vector quantized')
     
     parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
     parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')
