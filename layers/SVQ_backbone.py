@@ -130,7 +130,7 @@ class TSTiEncoder(nn.Module):  #i means channel-independent
         self.dropout = nn.Dropout(dropout)
 
         # Encoder
-        self.encoder = TSTEncoder(codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm, attn_dropout=attn_dropout, dropout=dropout,
+        self.encoder = TSTEncoder(codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads, num_quantizers=num_quantizers, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm, attn_dropout=attn_dropout, dropout=dropout,
                                    pre_norm=pre_norm, activation=act, res_attention=res_attention, n_layers=n_layers, store_attn=store_attn)
         
         
@@ -157,12 +157,12 @@ class TSTiEncoder(nn.Module):  #i means channel-independent
     
 # Cell
 class TSTEncoder(nn.Module):
-    def __init__(self, codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads, d_k=None, d_v=None, d_ff=None, 
+    def __init__(self, codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads, num_quantizers, d_k=None, d_v=None, d_ff=None, 
                         norm='BatchNorm', attn_dropout=0., dropout=0., activation='gelu',
                         res_attention=False, n_layers=1, pre_norm=False, store_attn=False):
         super().__init__()
 
-        self.layers = nn.ModuleList([TSTEncoderLayer(codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads=n_heads, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm,
+        self.layers = nn.ModuleList([TSTEncoderLayer(codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads=n_heads, num_quantizers=num_quantizers, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm,
                                                       attn_dropout=attn_dropout, dropout=dropout,
                                                       activation=activation, res_attention=res_attention,
                                                       pre_norm=pre_norm, store_attn=store_attn) for i in range(n_layers)])
