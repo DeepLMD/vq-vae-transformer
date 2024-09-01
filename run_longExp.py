@@ -143,7 +143,7 @@ def objective(trial):
     if args.is_training:
         for ii in range(args.itr):
             # setting record of experiments
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_lr{}_batch{}_FFN{}_vq{}_loss{}_revinlen{}_{}'.format(
+            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_lr{}_batch{}_FFN{}_vq{}_loss{}_revinlen{}_{}_RVQ'.format(
                 args.model_id,
                 args.model,
                 args.data,
