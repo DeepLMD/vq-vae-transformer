@@ -35,9 +35,9 @@ def objective(trial):
     
 
     # forecasting task
-    parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
+    parser.add_argument('--seq_len', type=int, default=512, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=48, help='start token length')
-    parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    parser.add_argument('--pred_len', type=int, default=trial.suggest_categorical('pred_len', [96, 192, 336, 720]), help='prediction sequence length')
 
 
     # Sparse-VQ
@@ -85,10 +85,10 @@ def objective(trial):
     parser.add_argument('--train_epochs', type=int, default=100, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=128, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=5, help='early stopping patience')
-    #parser.add_argument('--learning_rate', type=float, default=trial.suggest_categorical('learning_rate', [1e-1, 1e-2, 1e-3]), help='optimizer learning rate')
+    parser.add_argument('--learning_rate', type=float, default=trial.suggest_categorical('learning_rate', [0.05, 0.001, 0.0001]), help='optimizer learning rate')
     #parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
-    parser.add_argument('--des', type=str, default='test', help='exp description')
-    parser.add_argument('--loss', type=str, default='mae', help='loss function')
+    parser.add_argument('--des', type=str, default='Exp', help='exp description')
+    parser.add_argument('--loss', type=str, default='mse', help='loss function')
     parser.add_argument('--lradj', type=str, default='TST', help='adjust learning rate')
     parser.add_argument('--pct_start', type=float, default=0.3, help='pct_start')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
@@ -196,7 +196,7 @@ def objective(trial):
 if __name__ == '__main__':
     sampler = RandomSampler(seed=2024)
     study = optuna.create_study(direction='minimize', sampler=sampler) # random sampler
-    #study.optimize(objective, n_trials=25)  # number of trials
+    study.optimize(objective, n_trials=32)  # number of trials
 
     print("Best trial:")
     trial = study.best_trial
