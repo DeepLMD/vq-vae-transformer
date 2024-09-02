@@ -15,6 +15,8 @@ def objective(trial):
 
     #the num_quantizers parameter to be optimized
     parser.add_argument('--num_quantizers', type=int, default=trial.suggest_categorical('num_quantizers', [2, 4, 6, 8]), help='Number of quantizers for ResidualVQ')
+    # Suggesting groups parameter for GroupedResidualVQ
+    parser.add_argument('--groups', type=int, default=trial.suggest_categorical('groups', [2, 4, 8]), help='Number of groups for GroupedResidualVQ')
 
     # random seed
     parser.add_argument('--random_seed', type=int, default=2021, help='random seed')
