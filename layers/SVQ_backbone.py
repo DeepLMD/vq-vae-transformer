@@ -10,7 +10,7 @@ from layers.RevIN import RevIN, DishTS
 from layers.SVQ_block import VectorQuantize
 from layers.sparselinear import SparseLinear
 
-from vector_quantize_pytorch import GroupedResidualVQ
+from vector_quantize_pytorch import LFQ
 
 # Cell
 class SVQ_backbone(nn.Module):
@@ -230,7 +230,8 @@ class TSTEncoderLayer(nn.Module):
             #self.vq = VectorQuantize(dim = d_model, codebook_size = codebook_size, decay = 0.8, commitment_weight = 1., orthogonal_reg_weight=0.8, heads = 4, 
             #separate_codebook_per_head = True, ema_update = False, learnable_codebook = True)
 
-            self.vq = GroupedResidualVQ(dim=d_model, num_quantizers=num_quantizers, codebook_size=codebook_size, groups=groups, shared_codebook=True)
+            #self.vq = LFQ(dim=d_model, num_quantizers=num_quantizers, codebook_size=codebook_size, groups=groups, shared_codebook=True)
+            self.vq = LFQ(dim=d_model, codebook_size=codebook_size, entropy_loss_weight=0.1, diversity_gamma=1.)
 
 
 
@@ -241,7 +242,7 @@ class TSTEncoderLayer(nn.Module):
             src = self.norm_attn(src)
             
         if self.svq:
-            quantized, indices, commit_loss1 = self.vq(src)
+            quantized, indices, entropy_aux_loss = self.vq(src)
             src_vq, attn, scores = self.self_attn(quantized, quantized, quantized, prev, key_padding_mask=key_padding_mask, attn_mask=attn_mask)
             src = self.dropout_attn(src_vq) + src
             scores = 0
@@ -260,7 +261,7 @@ class TSTEncoderLayer(nn.Module):
             src = src + self.dropout_attn(src2) # Add: residual connection with residual dropout
             if not self.pre_norm:
                 src = self.norm_attn(src)
-            commit_loss1 = commit_loss2 = 0
+            entropy_aux_loss = commit_loss2 = 0
         
         if self.wFFN:
             # Feed-forward sublayer
@@ -274,9 +275,9 @@ class TSTEncoderLayer(nn.Module):
                 src = self.norm_ffn(src)
         
         if self.res_attention:
-            return src, scores, commit_loss1 + commit_loss2
+            return src, scores, entropy_aux_loss + commit_loss2
         else:
-            return src, commit_loss1 + commit_loss2
+            return src, entropy_aux_loss + commit_loss2
 
 
 
