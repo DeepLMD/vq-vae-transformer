@@ -14,7 +14,7 @@ from vector_quantize_pytorch import LFQ
 
 # Cell
 class SVQ_backbone(nn.Module):
-    def __init__(self, codebook_size, length, svq, wFFN, c_in:int, context_window:int, target_window:int, patch_len:int, stride:int, num_quantizers:int, groups:int, max_seq_len:Optional[int]=1024, 
+    def __init__(self, codebook_size, length, svq, wFFN, c_in:int, context_window:int, target_window:int, patch_len:int, stride:int, max_seq_len:Optional[int]=1024, 
                  n_layers:int=3, d_model=128, n_heads=16, d_k:Optional[int]=None, d_v:Optional[int]=None,
                  d_ff:int=256, norm:str='BatchNorm', attn_dropout:float=0., dropout:float=0., act:str="gelu", key_padding_mask:bool='auto',
                  padding_var:Optional[int]=None, attn_mask:Optional[Tensor]=None, res_attention:bool=True, pre_norm:bool=False, store_attn:bool=False,
@@ -39,7 +39,7 @@ class SVQ_backbone(nn.Module):
             patch_num += 1
         
         # Backbone 
-        self.backbone = TSTiEncoder(codebook_size, svq, wFFN, c_in, patch_num=patch_num, patch_len=patch_len, num_quantizers=num_quantizers, groups=groups, max_seq_len=max_seq_len, 
+        self.backbone = TSTiEncoder(codebook_size, svq, wFFN, c_in, patch_num=patch_num, patch_len=patch_len, max_seq_len=max_seq_len, 
                                 n_layers=n_layers, d_model=d_model, n_heads=n_heads, d_k=d_k, d_v=d_v, d_ff=d_ff,
                                 attn_dropout=attn_dropout, dropout=dropout, act=act, key_padding_mask=key_padding_mask, padding_var=padding_var,
                                 attn_mask=attn_mask, res_attention=res_attention, pre_norm=pre_norm, store_attn=store_attn,
@@ -106,7 +106,7 @@ class Flatten_Head(nn.Module):
         return x
 
 class TSTiEncoder(nn.Module):  #i means channel-independent
-    def __init__(self, codebook_size, svq, wFFN, c_in, patch_num, patch_len, num_quantizers, groups, max_seq_len=1024,
+    def __init__(self, codebook_size, svq, wFFN, c_in, patch_num, patch_len, max_seq_len=1024,
                  n_layers=3, d_model=128, n_heads=16, d_k=None, d_v=None,
                  d_ff=256, norm='BatchNorm', attn_dropout=0., dropout=0., act="gelu", store_attn=False,
                  key_padding_mask='auto', padding_var=None, attn_mask=None, res_attention=True, pre_norm=False,
@@ -130,7 +130,7 @@ class TSTiEncoder(nn.Module):  #i means channel-independent
         self.dropout = nn.Dropout(dropout)
 
         # Encoder
-        self.encoder = TSTEncoder(codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads, num_quantizers=num_quantizers, groups=groups, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm, attn_dropout=attn_dropout, dropout=dropout,
+        self.encoder = TSTEncoder(codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm, attn_dropout=attn_dropout, dropout=dropout,
                                    pre_norm=pre_norm, activation=act, res_attention=res_attention, n_layers=n_layers, store_attn=store_attn)
         
         
@@ -157,12 +157,12 @@ class TSTiEncoder(nn.Module):  #i means channel-independent
     
 # Cell
 class TSTEncoder(nn.Module):
-    def __init__(self, codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads, num_quantizers, groups, d_k=None, d_v=None, d_ff=None, 
+    def __init__(self, codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads, d_k=None, d_v=None, d_ff=None, 
                         norm='BatchNorm', attn_dropout=0., dropout=0., activation='gelu',
                         res_attention=False, n_layers=1, pre_norm=False, store_attn=False):
         super().__init__()
 
-        self.layers = nn.ModuleList([TSTEncoderLayer(codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads=n_heads, num_quantizers=num_quantizers, groups=groups, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm,
+        self.layers = nn.ModuleList([TSTEncoderLayer(codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads=n_heads, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm,
                                                       attn_dropout=attn_dropout, dropout=dropout,
                                                       activation=activation, res_attention=res_attention,
                                                       pre_norm=pre_norm, store_attn=store_attn) for i in range(n_layers)])
@@ -187,7 +187,7 @@ class TSTEncoder(nn.Module):
 
 
 class TSTEncoderLayer(nn.Module):
-    def __init__(self, codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads, num_quantizers, groups, d_k=None, d_v=None, d_ff=256, store_attn=False,
+    def __init__(self, codebook_size, svq, wFFN, c_in, patch_num, patch_len, q_len, d_model, n_heads, d_k=None, d_v=None, d_ff=256, store_attn=False,
                  norm='BatchNorm', attn_dropout=0, dropout=0., bias=True, activation="gelu", res_attention=False, pre_norm=False):
         super().__init__()
         assert not d_model%n_heads, f"d_model ({d_model}) must be divisible by n_heads ({n_heads})"
