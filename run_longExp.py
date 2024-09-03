@@ -48,7 +48,7 @@ def objective(trial):
     # Sparse-VQ
     parser.add_argument('--wFFN', type=int, default=1, help='use FFN layer')
     parser.add_argument('--svq', type=int, default=1, help='use sparse vector quantized')
-    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [256, 1024, 4096, 8192, 65536]), help='codebook_size in sparse vector quantized')
+    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [256, 512, 1024, 2048]), help='codebook_size in sparse vector quantized')
     
     parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
     parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')
