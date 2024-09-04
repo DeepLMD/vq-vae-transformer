@@ -37,7 +37,7 @@ def objective(trial):
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=512, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=48, help='start token length')
-    parser.add_argument('--pred_len', type=int, help='Prediction sequence length') #parser.add_argument('--pred_len', type=int, default=trial.suggest_categorical('pred_len', [96, 192, 336, 720]), help='prediction sequence length')
+    parser.add_argument('--pred_len', type=int, default=96, help='Prediction sequence length') #parser.add_argument('--pred_len', type=int, default=trial.suggest_categorical('pred_len', [96, 192, 336, 720]), help='prediction sequence length')
 
 
     # Sparse-VQ
@@ -72,7 +72,7 @@ def objective(trial):
     parser.add_argument('--distil', action='store_false',
                         help='whether to use distilling in encoder, using this argument means not using distilling',
                         default=True)
-    parser.add_argument('--dropout', type=float, help='dropout') #parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
+    parser.add_argument('--dropout', type=float, default=0.05, help='dropout') #parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
@@ -85,8 +85,8 @@ def objective(trial):
     parser.add_argument('--train_epochs', type=int, default=100, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=128, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=5, help='early stopping patience')
-    parser.add_argument('--learning_rate', type=float, help='Learning rate for the optimizer') #parser.add_argument('--learning_rate', type=float, default=trial.suggest_categorical('learning_rate', [0.05, 0.001, 0.0001]), help='optimizer learning rate')
-    #parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
+    #parser.add_argument('--learning_rate', type=float, help='Learning rate for the optimizer') #parser.add_argument('--learning_rate', type=float, default=trial.suggest_categorical('learning_rate', [0.05, 0.001, 0.0001]), help='optimizer learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
     parser.add_argument('--des', type=str, default='Exp', help='exp description')
     parser.add_argument('--loss', type=str, default='mse', help='loss function')
     parser.add_argument('--lradj', type=str, default='TST', help='adjust learning rate')
