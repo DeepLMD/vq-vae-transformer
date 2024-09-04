@@ -166,7 +166,7 @@ def objective(trial):
                 print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
                 exp.predict(setting, True)
 
-            torch.cuda.empty_cache()
+            #torch.cuda.empty_cache()
 
             return val_loss
     else:
@@ -191,7 +191,7 @@ def objective(trial):
         exp = Exp(args)  # set experiments
         print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
         exp.test(setting, test=1)
-        torch.cuda.empty_cache()
+        #torch.cuda.empty_cache()
 
 if __name__ == '__main__':
     
