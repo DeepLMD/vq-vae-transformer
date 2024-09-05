@@ -206,7 +206,7 @@ def objective(trial):
 if __name__ == '__main__':
     sampler = RandomSampler(seed=2024)
     study = optuna.create_study(direction='minimize', sampler=sampler) # random sampler
-    study.optimize(objective, n_trials=25)  # number of trials
+    study.optimize(objective, n_trials=108)  # number of trials
 
     print("Best trial:")
     trial = study.best_trial
