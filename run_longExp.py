@@ -10,6 +10,22 @@ from utils.generate_uuid import uuid_value
 import optuna
 from optuna.samplers import RandomSampler
 
+class AvoidDuplicateSampler(RandomSampler):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.tried_combinations = set()
+
+    def sample_independent(self, study, trial, param_name, param_distribution):
+        while True:
+            param_value = super().sample_independent(study, trial, param_name, param_distribution)
+            # Hash or tuple the current trial's parameters to track the combination
+            current_combination = tuple((param_name, param_value) for param_name, param_value in trial.params.items())
+            
+            if current_combination not in self.tried_combinations:
+                self.tried_combinations.add(current_combination)
+                break
+        return param_value
+
 def objective(trial):
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
 
@@ -197,7 +213,7 @@ def objective(trial):
         torch.cuda.empty_cache()
 
 if __name__ == '__main__':
-    sampler = RandomSampler(seed=2024)
+    sampler = AvoidDuplicateSampler(seed=2024)
     study = optuna.create_study(direction='minimize', sampler=sampler) # random sampler
     study.optimize(objective, n_trials=25)  # number of trials
 
