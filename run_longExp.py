@@ -10,24 +10,13 @@ from utils.generate_uuid import uuid_value
 import optuna
 from optuna.samplers import RandomSampler
 
-class AvoidDuplicateSampler(RandomSampler):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.tried_combinations = set()
-
-    def sample_independent(self, study, trial, param_name, param_distribution):
-        while True:
-            param_value = super().sample_independent(study, trial, param_name, param_distribution)
-            # Hash or tuple the current trial's parameters to track the combination
-            current_combination = tuple((param_name, param_value) for param_name, param_value in trial.params.items())
-            
-            if current_combination not in self.tried_combinations:
-                self.tried_combinations.add(current_combination)
-                break
-        return param_value
-
 def objective(trial):
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
+
+    #the num_quantizers parameter to be optimized
+    #parser.add_argument('--num_quantizers', type=int, default=trial.suggest_categorical('num_quantizers', [2, 4, 6, 8]), help='Number of quantizers for ResidualVQ')
+    # Suggesting groups parameter for GroupedResidualVQ
+    #parser.add_argument('--groups', type=int, default=trial.suggest_categorical('groups', [2, 4, 8]), help='Number of groups for GroupedResidualVQ')
 
     # random seed
     parser.add_argument('--random_seed', type=int, default=2021, help='random seed')
@@ -53,13 +42,15 @@ def objective(trial):
     # forecasting task
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=48, help='start token length')
-    parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    #parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
+    parser.add_argument('--pred_len', type=int, default=trial.suggest_categorical('pred_len', [96, 192, 336, 720]), help='prediction sequence length')
+
 
 
     # Sparse-VQ
     parser.add_argument('--wFFN', type=int, default=1, help='use FFN layer')
     parser.add_argument('--svq', type=int, default=1, help='use sparse vector quantized')
-    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [250, 500]), help='codebook_size in sparse vector quantized')
+    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [256, 512, 1024]), help='codebook_size in sparse vector quantized')
     
     parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
     parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')
@@ -81,7 +72,7 @@ def objective(trial):
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
     parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
     #parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
-    parser.add_argument('--e_layers', type=int, default=trial.suggest_categorical('e_layers', [3]), help='num of encoder layers')
+    parser.add_argument('--e_layers', type=int, default=trial.suggest_categorical('e_layers', [3, 2, 1]), help='num of encoder layers')
     
     parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
     parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
@@ -91,7 +82,7 @@ def objective(trial):
                         help='whether to use distilling in encoder, using this argument means not using distilling',
                         default=True)
     #parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
-    parser.add_argument('--dropout', type=float, default=trial.suggest_categorical('dropout', [0.2]), help='dropout')
+    parser.add_argument('--dropout', type=float, default=trial.suggest_categorical('dropout', [0.2, 0.15, 0.1]), help='dropout')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
@@ -156,7 +147,7 @@ def objective(trial):
     if args.is_training:
         for ii in range(args.itr):
             # setting record of experiments
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_lr{}_batch{}_FFN{}_vq{}_loss{}_revinlen{}_{}'.format(
+            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_lr{}_batch{}_FFN{}_vq{}_loss{}_revinlen{}_{}_LFQ'.format(
                 args.model_id,
                 args.model,
                 args.data,
@@ -213,9 +204,9 @@ def objective(trial):
         torch.cuda.empty_cache()
 
 if __name__ == '__main__':
-    sampler = AvoidDuplicateSampler(seed=2024)
+    sampler = RandomSampler(seed=2024)
     study = optuna.create_study(direction='minimize', sampler=sampler) # random sampler
-    study.optimize(objective, n_trials=25)  # number of trials
+    study.optimize(objective, n_trials=108)  # number of trials
 
     print("Best trial:")
     trial = study.best_trial
