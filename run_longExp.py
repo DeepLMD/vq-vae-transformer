@@ -10,13 +10,31 @@ from utils.generate_uuid import uuid_value
 import optuna
 from optuna.samplers import RandomSampler
 
+# Set to store the already tested combinations of hyperparameters
+tested_combinations = set()
+
 def objective(trial):
+
+    global tested_combinations  # Use the global set to store tested combinations
+
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
 
-    #the num_quantizers parameter to be optimized
-    #parser.add_argument('--num_quantizers', type=int, default=trial.suggest_categorical('num_quantizers', [2, 4, 6, 8]), help='Number of quantizers for ResidualVQ')
-    # Suggesting groups parameter for GroupedResidualVQ
-    #parser.add_argument('--groups', type=int, default=trial.suggest_categorical('groups', [2, 4, 8]), help='Number of groups for GroupedResidualVQ')
+    # Suggesting hyperparameters
+    pred_len = trial.suggest_categorical('pred_len', [96, 192, 336, 720])
+    codebook_size = trial.suggest_categorical('codebook_size', [256, 512, 1024])
+    e_layers = trial.suggest_categorical('e_layers', [3, 2, 1])
+    dropout = trial.suggest_categorical('dropout', [0.2, 0.15, 0.1])
+
+    # Create a tuple of the hyperparameter values to check if it's already tested
+    hyperparameter_combination = (pred_len, codebook_size, e_layers, dropout)
+
+    # If this combination has already been tested, return a high loss value to skip it
+    if hyperparameter_combination in tested_combinations:
+        print(f"Combination {hyperparameter_combination} already tested. Skipping.")
+        return float('inf')  # Return a large value to indicate bad performance
+    
+    # If it's a new combination, add it to the set
+    tested_combinations.add(hyperparameter_combination)
 
     # random seed
     parser.add_argument('--random_seed', type=int, default=2021, help='random seed')
@@ -43,14 +61,16 @@ def objective(trial):
     parser.add_argument('--seq_len', type=int, default=96, help='input sequence length')
     parser.add_argument('--label_len', type=int, default=48, help='start token length')
     #parser.add_argument('--pred_len', type=int, default=96, help='prediction sequence length')
-    parser.add_argument('--pred_len', type=int, default=trial.suggest_categorical('pred_len', [96, 192, 336, 720]), help='prediction sequence length')
+    #parser.add_argument('--pred_len', type=int, default=trial.suggest_categorical('pred_len', [96, 192, 336, 720]), help='prediction sequence length')
+    parser.add_argument('--pred_len', type=int, default=pred_len, help='prediction sequence length')
+    parser.add_argument('--codebook_size', type=int, default=codebook_size, help='codebook_size in sparse vector quantized')
 
 
 
     # Sparse-VQ
     parser.add_argument('--wFFN', type=int, default=1, help='use FFN layer')
     parser.add_argument('--svq', type=int, default=1, help='use sparse vector quantized')
-    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [256, 512, 1024]), help='codebook_size in sparse vector quantized')
+    #parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [256, 512, 1024]), help='codebook_size in sparse vector quantized')
     
     parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
     parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')
@@ -72,7 +92,9 @@ def objective(trial):
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
     parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
     #parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
-    parser.add_argument('--e_layers', type=int, default=trial.suggest_categorical('e_layers', [3, 2, 1]), help='num of encoder layers')
+    #parser.add_argument('--e_layers', type=int, default=trial.suggest_categorical('e_layers', [3, 2, 1]), help='num of encoder layers')
+    parser.add_argument('--e_layers', type=int, default=e_layers, help='num of encoder layers')
+
     
     parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
     parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
@@ -82,7 +104,8 @@ def objective(trial):
                         help='whether to use distilling in encoder, using this argument means not using distilling',
                         default=True)
     #parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
-    parser.add_argument('--dropout', type=float, default=trial.suggest_categorical('dropout', [0.2, 0.15, 0.1]), help='dropout')
+    #parser.add_argument('--dropout', type=float, default=trial.suggest_categorical('dropout', [0.2, 0.15, 0.1]), help='dropout')
+    parser.add_argument('--dropout', type=float, default=dropout, help='dropout')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
