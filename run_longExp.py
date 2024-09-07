@@ -59,7 +59,7 @@ def objective(trial):
     # Sparse-VQ
     parser.add_argument('--wFFN', type=int, default=1, help='use FFN layer')
     parser.add_argument('--svq', type=int, default=1, help='use sparse vector quantized')
-    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [250, 500, 750, 1000]), help='codebook_size in sparse vector quantized')
+    parser.add_argument('--codebook_size', type=int, default=trial.suggest_categorical('codebook_size', [250, 500]), help='codebook_size in sparse vector quantized')
     
     parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
     parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')
@@ -81,7 +81,7 @@ def objective(trial):
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
     parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
     #parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
-    parser.add_argument('--e_layers', type=int, default=trial.suggest_categorical('e_layers', [3, 2, 1]), help='num of encoder layers')
+    parser.add_argument('--e_layers', type=int, default=trial.suggest_categorical('e_layers', [3]), help='num of encoder layers')
     
     parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
     parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
@@ -91,7 +91,7 @@ def objective(trial):
                         help='whether to use distilling in encoder, using this argument means not using distilling',
                         default=True)
     #parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
-    parser.add_argument('--dropout', type=float, default=trial.suggest_categorical('dropout', [0.2, 0.15, 0.1]), help='dropout')
+    parser.add_argument('--dropout', type=float, default=trial.suggest_categorical('dropout', [0.2]), help='dropout')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
