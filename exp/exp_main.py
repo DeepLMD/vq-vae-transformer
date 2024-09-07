@@ -90,6 +90,9 @@ class Exp_Main(Exp_Basic):
                 del batch_x, batch_y, batch_x_mark, batch_y_mark, outputs, dec_inp, pred, true
                 torch.cuda.empty_cache()
 
+                # After processing the first batch, break the loop
+                break
+
         total_loss = np.average(total_loss)
 
         del vali_data, vali_loader
@@ -176,6 +179,9 @@ class Exp_Main(Exp_Basic):
                 
                 del batch_x, batch_y, batch_x_mark, batch_y_mark, outputs, dec_inp, loss
                 torch.cuda.empty_cache()
+
+                # After processing the first batch, break the loop
+                break
 
             print("Epoch: {} cost time: {}".format(epoch + 1, time.time() - epoch_time))
 
