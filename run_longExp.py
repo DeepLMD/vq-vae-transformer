@@ -20,10 +20,10 @@ def objective(trial):
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
 
     # Suggesting hyperparameters
-    pred_len = trial.suggest_categorical('pred_len', [96, 192, 336, 720])
-    codebook_size = trial.suggest_categorical('codebook_size', [256, 512, 1024])
-    e_layers = trial.suggest_categorical('e_layers', [3, 2, 1])
-    dropout = trial.suggest_categorical('dropout', [0.2, 0.15, 0.1])
+    pred_len = trial.suggest_categorical('pred_len', [96])
+    codebook_size = trial.suggest_categorical('codebook_size', [256])
+    e_layers = trial.suggest_categorical('e_layers', [3])
+    dropout = trial.suggest_categorical('dropout', [0.2, 0.15])
 
     # Create a tuple of the hyperparameter values to check if it's already tested
     hyperparameter_combination = (pred_len, codebook_size, e_layers, dropout)
