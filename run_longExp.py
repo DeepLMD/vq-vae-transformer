@@ -22,7 +22,8 @@ def objective(trial):
     #################################   Suggesting hyperparameters    #################################
     #pred_len = trial.suggest_categorical('pred_len', [96, 192, 336, 720])
     #pred_len = trial.suggest_categorical('pred_len', [192])
-    codebook_size = trial.suggest_categorical('codebook_size', [500, 750, 1000])
+    #codebook_size = trial.suggest_categorical('codebook_size', [500, 750, 1000])
+    num_quantizers = trial.suggest_categorical('num_quantizers', [2, 4, 8])  # Number of quantizers in ResidualFSQ
     e_layers = trial.suggest_categorical('e_layers', [3, 2, 1])
     dropout = trial.suggest_categorical('dropout', [0.2, 0.15, 0.1])
     #################################                                 #################################
@@ -30,7 +31,8 @@ def objective(trial):
     # Create a tuple of the hyperparameter values to check if it's already tested
     hyperparameter_combination = (
         #pred_len,
-        codebook_size,
+        #codebook_size,
+        num_quantizers,
         e_layers,
         dropout)
 
@@ -72,7 +74,8 @@ def objective(trial):
     # Sparse-VQ
     parser.add_argument('--wFFN', type=int, default=1, help='use FFN layer')
     parser.add_argument('--svq', type=int, default=1, help='use sparse vector quantized')
-    parser.add_argument('--codebook_size', type=int, default=codebook_size, help='codebook_size in sparse vector quantized')
+    #parser.add_argument('--codebook_size', type=int, default=codebook_size, help='codebook_size in sparse vector quantized')
+    parser.add_argument('--num_quantizers', type=int, default=num_quantizers, help='num_quantizers in residual LFQ')
     
     parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
     parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')
@@ -169,7 +172,7 @@ def objective(trial):
     if args.is_training:
         for ii in range(args.itr):
             # setting record of experiments
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_lr{}_batch{}_FFN{}_vq{}_loss{}_revinlen{}_{}_SVQ_OPTUNA'.format(
+            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_lr{}_batch{}_FFN{}_vq{}_loss{}_revinlen{}_{}_RESIDUAL_FSQ_OPTUNA'.format(
                 args.model_id,
                 args.model,
                 args.data,

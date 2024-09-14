@@ -44,14 +44,14 @@ class Model(nn.Module):
         kernel_size = configs.kernel_size
         
                      
-        codebook_size = configs.codebook_size
+        num_quantizers = configs.num_quantizers
         wFFN = configs.wFFN
         svq = configs.svq,
         length = configs.length
 
-        self.model = SVQ_backbone(codebook_size, length, svq=svq, wFFN=wFFN, c_in=c_in, context_window = context_window, target_window=target_window, patch_len=patch_len, stride=stride, 
+        self.model = SVQ_backbone(length, svq=svq, wFFN=wFFN, c_in=c_in, context_window = context_window, target_window=target_window, patch_len=patch_len, stride=stride, 
                                   max_seq_len=max_seq_len, n_layers=n_layers, d_model=d_model,
-                                  n_heads=n_heads, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm, attn_dropout=attn_dropout,
+                                  n_heads=n_heads, num_quantizers=num_quantizers, d_k=d_k, d_v=d_v, d_ff=d_ff, norm=norm, attn_dropout=attn_dropout,
                                   dropout=dropout, act=act, key_padding_mask=key_padding_mask, padding_var=padding_var, 
                                   attn_mask=attn_mask, res_attention=res_attention, pre_norm=pre_norm, store_attn=store_attn,
                                   pe=pe, learn_pe=learn_pe, fc_dropout=fc_dropout, head_dropout=head_dropout, padding_patch = padding_patch,
