@@ -22,7 +22,7 @@ def objective(trial):
     #################################   Suggesting hyperparameters    #################################
     #pred_len = trial.suggest_categorical('pred_len', [96, 192, 336, 720])
     #pred_len = trial.suggest_categorical('pred_len', [192])
-    codebook_size = trial.suggest_categorical('codebook_size', [500, 750, 1000])
+    codebook_size = trial.suggest_categorical('codebook_size', [256, 512, 1024])
     e_layers = trial.suggest_categorical('e_layers', [3, 2, 1])
     dropout = trial.suggest_categorical('dropout', [0.2, 0.15, 0.1])
     #################################                                 #################################
@@ -169,7 +169,7 @@ def objective(trial):
     if args.is_training:
         for ii in range(args.itr):
             # setting record of experiments
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_lr{}_batch{}_FFN{}_vq{}_loss{}_revinlen{}_{}_SVQ_OPTUNA'.format(
+            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_lr{}_batch{}_FFN{}_vq{}_loss{}_revinlen{}_{}_LFQ_OPTUNA'.format(
                 args.model_id,
                 args.model,
                 args.data,

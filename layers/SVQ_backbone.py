@@ -7,8 +7,10 @@ import numpy as np
 from einops import rearrange
 from layers.SVQ_layers import *
 from layers.RevIN import RevIN, DishTS
-from layers.SVQ_block import VectorQuantize
+#from layers.SVQ_block import VectorQuantize
 from layers.sparselinear import SparseLinear
+
+from vector_quantize_pytorch import LFQ
 
 # Cell
 class SVQ_backbone(nn.Module):
@@ -225,8 +227,12 @@ class TSTEncoderLayer(nn.Module):
         self.store_attn = store_attn
 
         if self.svq:
-            self.vq = VectorQuantize(dim = d_model, codebook_size = codebook_size, decay = 0.8, commitment_weight = 1., orthogonal_reg_weight=0.8, heads = 4, 
-            separate_codebook_per_head = True, ema_update = False, learnable_codebook = True)
+            self.vq = LFQ(
+                            codebook_size = codebook_size,      # codebook size, must be a power of 2
+                            dim = d_model,                   # this is the input feature dimension, defaults to log2(codebook_size) if not defined
+                            entropy_loss_weight = 0.1,  # how much weight to place on entropy loss
+                            diversity_gamma = 1.        # within entropy loss, how much weight to give to diversity of codes, taken from https://arxiv.org/abs/1911.05894
+                        )
 
 
 
