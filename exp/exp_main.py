@@ -151,7 +151,9 @@ class Exp_Main(Exp_Basic):
 
                 loss = criterion(outputs, batch_y)
                 if self.args.svq:
-                    loss = loss + vq_loss*0.2
+                    if isinstance(vq_loss, torch.Tensor) and vq_loss.numel() > 1:
+                        vq_loss = torch.mean(vq_loss)
+                    loss = loss + vq_loss * 0.2
                 train_loss.append(loss.item())
 
                 if (i + 1) % 100 == 0:
