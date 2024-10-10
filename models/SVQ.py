@@ -46,7 +46,7 @@ class Model(nn.Module):
                      
         codebook_size = configs.codebook_size
         wFFN = configs.wFFN
-        svq = configs.svq,
+        svq = configs.svq
         length = configs.length
 
         self.model = SVQ_backbone(codebook_size, length, svq=svq, wFFN=wFFN, c_in=c_in, context_window = context_window, target_window=target_window, patch_len=patch_len, stride=stride, 

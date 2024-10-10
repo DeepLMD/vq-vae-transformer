@@ -7,40 +7,8 @@ import numpy as np
 from utils.git_revision_hash_func import git_hash
 from utils.generate_uuid import uuid_value
 
-import optuna
-from optuna.samplers import RandomSampler
-
-# Set to store the already tested combinations of hyperparameters
-tested_combinations = set()
-
-def objective(trial):
-
-    global tested_combinations  # Use the global set to store tested combinations
-
+if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
-
-    #################################   Suggesting hyperparameters    #################################
-    #pred_len = trial.suggest_categorical('pred_len', [96, 192, 336, 720])
-    #pred_len = trial.suggest_categorical('pred_len', [192])
-    codebook_size = trial.suggest_categorical('codebook_size', [500, 750, 1000])
-    e_layers = trial.suggest_categorical('e_layers', [3, 2, 1])
-    dropout = trial.suggest_categorical('dropout', [0.2, 0.15, 0.1])
-    #################################                                 #################################
-
-    # Create a tuple of the hyperparameter values to check if it's already tested
-    hyperparameter_combination = (
-        #pred_len,
-        codebook_size,
-        e_layers,
-        dropout)
-
-    # If this combination has already been tested, return a high loss value to skip it
-    if hyperparameter_combination in tested_combinations:
-        print(f"Combination {hyperparameter_combination} already tested. Skipping.")
-        return float('inf')  # Return a large value to indicate bad performance
-    
-    # If it's a new combination, add it to the set
-    tested_combinations.add(hyperparameter_combination)
 
     # random seed
     parser.add_argument('--random_seed', type=int, default=2021, help='random seed')
@@ -72,7 +40,7 @@ def objective(trial):
     # Sparse-VQ
     parser.add_argument('--wFFN', type=int, default=1, help='use FFN layer')
     parser.add_argument('--svq', type=int, default=1, help='use sparse vector quantized')
-    parser.add_argument('--codebook_size', type=int, default=codebook_size, help='codebook_size in sparse vector quantized')
+    parser.add_argument('--codebook_size', type=int, default=128, help='codebook_size in sparse vector quantized')
     
     parser.add_argument('--fc_dropout', type=float, default=0.05, help='fully connected dropout')
     parser.add_argument('--head_dropout', type=float, default=0.0, help='head dropout')
@@ -93,9 +61,7 @@ def objective(trial):
     parser.add_argument('--c_out', type=int, default=7, help='output size')
     parser.add_argument('--d_model', type=int, default=512, help='dimension of model')
     parser.add_argument('--n_heads', type=int, default=8, help='num of heads')
-    #parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
-    parser.add_argument('--e_layers', type=int, default=e_layers, help='num of encoder layers')
-    
+    parser.add_argument('--e_layers', type=int, default=2, help='num of encoder layers')
     parser.add_argument('--d_layers', type=int, default=1, help='num of decoder layers')
     parser.add_argument('--d_ff', type=int, default=2048, help='dimension of fcn')
     parser.add_argument('--moving_avg', type=int, default=25, help='window size of moving average')
@@ -103,8 +69,7 @@ def objective(trial):
     parser.add_argument('--distil', action='store_false',
                         help='whether to use distilling in encoder, using this argument means not using distilling',
                         default=True)
-    #parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
-    parser.add_argument('--dropout', type=float, default=dropout, help='dropout')
+    parser.add_argument('--dropout', type=float, default=0.05, help='dropout')
     parser.add_argument('--embed', type=str, default='timeF',
                         help='time features encoding, options:[timeF, fixed, learned]')
     parser.add_argument('--activation', type=str, default='gelu', help='activation')
@@ -117,10 +82,9 @@ def objective(trial):
     parser.add_argument('--train_epochs', type=int, default=100, help='train epochs')
     parser.add_argument('--batch_size', type=int, default=128, help='batch size of train input data')
     parser.add_argument('--patience', type=int, default=5, help='early stopping patience')
-    #parser.add_argument('--learning_rate', type=float, default=trial.suggest_categorical('learning_rate', [1e-1, 1e-2, 1e-3]), help='optimizer learning rate')
     parser.add_argument('--learning_rate', type=float, default=0.0001, help='optimizer learning rate')
     parser.add_argument('--des', type=str, default='test', help='exp description')
-    parser.add_argument('--loss', type=str, default='mse', help='loss function')
+    parser.add_argument('--loss', type=str, default='mae', help='loss function')
     parser.add_argument('--lradj', type=str, default='TST', help='adjust learning rate')
     parser.add_argument('--pct_start', type=float, default=0.3, help='pct_start')
     parser.add_argument('--use_amp', action='store_true', help='use automatic mixed precision training', default=False)
@@ -169,7 +133,7 @@ def objective(trial):
     if args.is_training:
         for ii in range(args.itr):
             # setting record of experiments
-            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_lr{}_batch{}_FFN{}_vq{}_loss{}_revinlen{}_{}_SVQ_OPTUNA'.format(
+            setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_lr{}_batch{}_FFN{}_vq{}_loss{}_revinlen{}_{}'.format(
                 args.model_id,
                 args.model,
                 args.data,
@@ -192,15 +156,13 @@ def objective(trial):
             exp.train(setting)
 
             print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
-            val_loss = exp.test(setting)
+            exp.test(setting)
 
             if args.do_predict:
                 print('>>>>>>>predicting : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
                 exp.predict(setting, True)
 
             torch.cuda.empty_cache()
-
-            return val_loss
     else:
         ii = 0
         setting = '{}_{}_{}_ft{}_sl{}_ll{}_pl{}_dm{}_nh{}_el{}_dl{}_df{}_fc{}_eb{}_dt{}_{}_{}'.format(args.model_id,
@@ -224,16 +186,4 @@ def objective(trial):
         print('>>>>>>>testing : {}<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<'.format(setting))
         exp.test(setting, test=1)
         torch.cuda.empty_cache()
-
-if __name__ == '__main__':
-    sampler = RandomSampler(seed=2024)
-    study = optuna.create_study(direction='minimize', sampler=sampler) # random sampler
-    study.optimize(objective, n_trials=10)  # number of trials
-
-    print("Best trial:")
-    trial = study.best_trial
-    print(f"  Value: {trial.value}")
-    print("  Params: ")
-    for key, value in trial.params.items():
-        print(f"    {key}: {value}")
         
