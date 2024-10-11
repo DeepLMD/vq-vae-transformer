@@ -7,6 +7,30 @@ import numpy as np
 from utils.git_revision_hash_func import git_hash
 from utils.generate_uuid import uuid_value
 
+def select_free_gpu():
+    # Check if GPUs are available
+    if not torch.cuda.is_available():
+        print("No GPU available!")
+        return -1
+    
+    # Retrieve the number of available GPUs
+    available_gpus = torch.cuda.device_count()
+    
+    # Retrieve information about GPUs using `nvidia-smi`
+    memory_stats = []
+    for i in range(available_gpus):
+        # Get the memory usage of the GPU
+        memory_allocated = torch.cuda.memory_allocated(i)
+        memory_reserved = torch.cuda.memory_reserved(i)
+        memory_free = torch.cuda.get_device_properties(i).total_memory - memory_allocated - memory_reserved
+        memory_stats.append((i, memory_free))
+    
+    # Select the GPU with the most free memory
+    best_gpu = max(memory_stats, key=lambda x: x[1])[0]
+    print(f"Selected GPU {best_gpu} with most free memory: {max(memory_stats, key=lambda x: x[1])[1] / 1024 ** 2:.2f} MB free")
+    
+    return best_gpu
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=' Transformer family for Time Series Forecasting')
 
@@ -121,6 +145,8 @@ if __name__ == '__main__':
         device_ids = args.devices.split(',')
         args.device_ids = [int(id_) for id_ in device_ids]
         args.gpu = args.device_ids[0]
+    else:
+        args.gpu = select_free_gpu()  # choose gpu with most free space
     
     print('Args in experiment:')
     print(args)
