@@ -1,37 +1,56 @@
-# Sparse-VQ Transformer
+# VQ-Transformer Framework
 
-An FFN-Free Framework with Vector Quantization for Enhanced Time Series Forecasting
+This repository is based on the **Sparse-VQ Transformer** framework and provides implementations of various **VQ** methods and **Linear Models**.
+Each method and model is organized in its own branch to allow for straightforward experimentation and performance evaluation.
 
- Our Sparse-VQ capitalizes
-on a sparse vector quantization technique coupled with Reverse
-Instance Normalization (RevIN) to reduce noise impact and capture sufficient statistics for forecasting, serving as an alternative
-to the Feed-Forward layer (FFN) in the transformer architecture.
-Our FFN-free approach trims the parameter count, enhancing computational efficiency and reducing overfitting. Through evaluations across ten benchmark datasets, including the newly introduced CAISO dataset, Sparse-VQ surpasses leading models with
-a 7.84% and 4.17% decrease in MAE for univariate and multivariate time series forecasting, respectively. 
+## Available VQ Methods and Branches
 
+To access and use a specific VQ method or linear model, switch to the branch associated with that method.
+The branches follow this naming convention:
 
-
-
-## Get Started
-
-1. Install Python 3.6, PyTorch 1.9.0.
-2. Download data. You can obtain the datasets from [[Autoformer](https://github.com/thuml/Autoformer)] .
-3. Train the model. We provide the experiment scripts of all benchmarks under the folder `./scripts`. You can reproduce the experiment results by:
+main-[vq-method-placeholder]-exp
 
 
-```bash
-bash ./scripts/traffic_M.sh
-bash ./scripts/traffic_S.sh
-```
+### VQ Methods
+
+Here are the VQ methods currently available and their corresponding branch names:
+
+| VQ Method                          | Branch Name                  |
+|------------------------------------|------------------------------|
+| Vanilla VQ                         | `main-vanilla-vq-exp`        |
+| Without VQ                         | `main-svq0-exp`              |
+| RLFQ                               | `main-residual-lfq-exp`      |
+| GRVQ                               | `main-grvq-exp`              |
+| LFQ                                | `main-LFQ-exp`               |
+| RFSQ                               | `main-residual-fsq-exp` |
+| RVQ                                | `main-rvq-exp`               |
+
+### Linear Models
+
+| Linear Model       | Branch Name                  |
+|--------------------|------------------------------|
+| LTSF-Linear        | `main-LTSF-Linear-exp`       |
+
+
+## Datasets
+
+The raw datasets used in this framework can be accessed through the following sources:
+
+- **Traffic Dataset**: The raw traffic dataset is available at the [PeMS website](http://pems.dot.ca.gov).
+- **Electricity Dataset**: The raw electricity dataset is available at the [UCI Machine Learning Repository](https://archive.ics.uci.edu/dataset/321/electricityloaddiagrams20112014).
 
 
 ## Acknowledgement
 
-We appreciate the following github repos a lot for their valuable code base or datasets:
+Appreciation goes to the following repositories for their valuable code bases and datasets:
 
 https://github.com/yuqinie98/PatchTST
 
 https://github.com/MAZiqing/FEDformer
 
 https://github.com/lucidrains/vector-quantize-pytorch
-# vq-vae-transformer
+
+https://github.com/Yanjun-Zhao/Sparse-VQ
+
+https://github.com/Pachark/SVQ-Forecasting
+
